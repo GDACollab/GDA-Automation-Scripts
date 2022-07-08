@@ -1,0 +1,2 @@
+Allow for multiple functions on one line for the calendar
+Have scripts overwrite automation functions it finds when they've been called?
