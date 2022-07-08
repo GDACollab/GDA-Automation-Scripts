@@ -1,26 +1,21 @@
 {
+    "masterCalendar": "1RottfSG9A17brgQVgfoePjWUCMLyxBbzqcuz9ZQ5oHY",
     "officerDrive": "0ADLDTXI24fcdUk9PVA",
-    "docsToCopy": [
-        {
+    "docsToCopy": {
+        "Officer Meeting Notes": {
             "file": "1tiF0EEUZALJwSPckHazUzuDKyZiQf58QpuiC0uL5NxQ",
             "folder": "13osa6h9m_46zg4v-EHe0i-3fec2q7jYf",
-            "name": "Officer Meeting Notes",
-            "enabled": true,
-            "dayOfWeek": "Sunday"
+            "enabled": true
         },
-        {
+        "Presidential Meeting Notes": {
             "file": "1eHPMtJXRdsNZQ4N2JIbuHp64daVjvheBVdv8roeZPAY",
             "folder": "1qL09cMtLFCsO4aYZRaRVXnYr7Kpc2mjd",
-            "name": "Presidential Meeting Notes",
-            "enabled": true,
-            "dayOfWeek": "Saturday"
+            "enabled": true
         },
-        {
+        "General Meeting": {
             "file": "",
             "folder": "1vbRjWMTe8dW3EwIoKEkNUgJx3jNMPJ60",
-            "name": "General Meeting",
-            "enabled": false,
-            "dayOfWeek": "Friday"
+            "enabled": false
         }
-    ]
+    }
 }
