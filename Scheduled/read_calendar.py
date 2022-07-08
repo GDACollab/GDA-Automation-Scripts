@@ -75,5 +75,6 @@ def read_calendar(sheet_service, settings):
                             print(f"Could not find function {func[0]} to execute")
 
     s = open("settings.json", 'w')
-    json.dump(settings, s)
+    # From https://stackoverflow.com/questions/37398301/json-dumps-format-python
+    json.dump(settings, s, sort_keys=True, indent=4, separators=(',', ': '))
     s.close()
