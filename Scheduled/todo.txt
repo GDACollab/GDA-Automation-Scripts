@@ -1,0 +1,2 @@
+Set up a python script to read the master spreadsheet calendar and make decisions based on that.
+Make weekly docs script based on "Week of" instead of specific days of the week (less configuration that way)
