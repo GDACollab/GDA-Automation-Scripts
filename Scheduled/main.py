@@ -29,9 +29,9 @@ def main():
         sheet_service = build('sheets', 'v4', credentials=creds)
         read_calendar(sheet_service, settings)
 
-        #creds = login()
-        #service = build('drive', 'v3', credentials=creds)
-        #make_docs(service, settings)
+        creds = login()
+        service = build('drive', 'v3', credentials=creds)
+        make_docs(service, settings)
 
     except HttpError as error:
         print(f'An error has occured: {error}')
