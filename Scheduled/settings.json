@@ -18,5 +18,10 @@
         }
     },
     "masterCalendar": "1RottfSG9A17brgQVgfoePjWUCMLyxBbzqcuz9ZQ5oHY",
-    "officerDrive": "0ADLDTXI24fcdUk9PVA"
+    "officerDrive": "0ADLDTXI24fcdUk9PVA",
+    "monday.com": {
+        "meetingsBoard": "2900308117",
+        "date": "Date",
+        "docs": "Attatched Docs"
+    }
 }

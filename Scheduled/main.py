@@ -8,6 +8,7 @@ from googleapiclient.errors import HttpError
 from drive_login import login, full_login_refresh
 from make_weekly_docs import make_docs
 from read_calendar import read_calendar
+from monday_task_creation import setup_monday
 
 def main():
     args = sys.argv[1:]
@@ -24,6 +25,8 @@ def main():
         settings = json.load(s)
         s.close()
         creds = login()
+
+        setup_monday()
 
         # Should have permission to do this with current scopes. Add https://www.googleapis.com/auth/spreadsheets.readonly otherwise
         sheet_service = build('sheets', 'v4', credentials=creds)
