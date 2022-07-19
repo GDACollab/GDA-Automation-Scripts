@@ -8,7 +8,8 @@
         "Officer Meeting Notes": {
             "enabled": true,
             "file": "1tiF0EEUZALJwSPckHazUzuDKyZiQf58QpuiC0uL5NxQ",
-            "folder": "13osa6h9m_46zg4v-EHe0i-3fec2q7jYf"
+            "folder": "13osa6h9m_46zg4v-EHe0i-3fec2q7jYf",
+            "makeNextWeek": true
         },
         "Presidential Meeting Notes": {
             "enabled": true,

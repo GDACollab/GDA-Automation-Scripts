@@ -22,7 +22,8 @@ def get_week_monday(offset="Monday"):
         "Thursday": 3,
         "Friday": 4,
         "Saturday": 5, #Stupid week conventions:
-        "Sunday": -1
+        "Sunday": -1,
+        "NextWeek": 7
     }
 
     today = datetime.date.today()
@@ -35,6 +36,9 @@ def make_docs(service, settings):
 
     for doc in settings["docsToCopy"]:
         date = get_week_monday("Sunday")
+        if settings["docsToCopy"][doc]["makeNextWeek"]:
+            date = get_week_monday("NextWeek")
+
         date_string = f"{date.year}/{date.month}/{date.day}"
 
         name = f"[{date_string}] Week Of {doc}"
