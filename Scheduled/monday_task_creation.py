@@ -38,24 +38,30 @@ def load_board_info(board_id):
     return {"groups": total_groups, "columns": total_columns}
 
 
-def create_task(monday_settings, group, columns, name, date, time, attatched_file_urls):
-    meetings_name = monday_settings["meetingsBoard"]
-    date_name = columns[monday_settings["date"]]
-    docs_name = columns[monday_settings["docs"]]
+def create_meeting_task(monday_settings, board_info, group, name, team, date, attatched_file_urls):
+    meetings_name = monday_settings["meetingsBoardId"]
+    date_name = board_info["columns"][monday_settings["date"]]
+    docs_name = board_info["columns"][monday_settings["docs"]]
+    person_name = board_info["columns"][monday_settings["person"]]
 
     files = []
     for file in attatched_file_urls:
         files.append({"name": "Meeting Notes " + date, "fileType": "LINK", "linkToFile": file})
-    file_string = json.dumps({"files": files})
 
     column_values = {}
     column_values[date_name] = {
-        "date": date,
-        "time": time
+        "date": date
     }
+    column_values[docs_name] = {
+        "files": files
+    }
+    column_values[person_name] = {
+        "id": team,
+        "kind": "team"
+    }
+
     column_values = json.dumps(column_values)
-    column_values = "\"" + column_values.replace("\\", "\\\\") + "\""
-    print(column_values)
+    column_values = "\"" + column_values.replace("\"", "\\\"") + "\""
     query = f"mutation {{ create_item(board_id: {meetings_name}, group_id: \"{ group }\", item_name: \"{name}\", column_values: {column_values}) {{ id }}}}"
     send_request(query)
 
@@ -67,10 +73,5 @@ if __name__ == "__main__":
     monday_settings = json.load(f)["monday.com"]
     f.close()
 
-    # Working request:
-    #send_request("mutation { create_item(board_id: 2900308117, group_id: \"topics\", item_name: \"New Task Test\", column_values: \"{\\\"date4\\\" : {\\\"date\\\" : \\\"1993-08-27\\\", \\\"time\\\" : \\\"18:00:00\\\"}}\") { id }}")
-    send_request("query { boards (ids: 2900308117) { items { id name column_values {id value text} } } }")
-    info = load_board_info(monday_settings["meetingsBoard"])
-    groups = info["groups"]
-    columns = info["columns"]
-    create_task(monday_settings, groups["General Meetings"], columns, "New Task Test", "2022-07-20", "16:00", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+    info = load_board_info(monday_settings["meetingsBoardId"])
+    create_meeting_task(monday_settings, info, "General Meetings", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
