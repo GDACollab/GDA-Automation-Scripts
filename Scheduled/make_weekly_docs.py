@@ -37,15 +37,15 @@ def make_docs(service, settings):
         date = get_week_monday("Sunday")
         date_string = f"{date.year}/{date.month}/{date.day}"
 
-        name = f"[{date_string}] {doc['name']}"
+        name = f"[{date_string}] Week Of {doc}"
         # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
         current_files = service.files().list(q=f"name='{name}'", includeItemsFromAllDrives=True, supportsTeamDrives=True).execute()
         # If we're currently allowed to make the document, and if the document we're trying to make doesn't exist:
-        if doc["enabled"] and len(current_files.get("files")) <= 0:
+        if settings["docsToCopy"][doc]["enabled"] and len(current_files.get("files")) <= 0:
             body = {
                 "name": name,
                 "parents": [
-                    doc["folder"]
+                    settings["docsToCopy"][doc]["folder"]
                 ]
             }
-            service.files().copy(fileId=doc["file"], supportsAllDrives=True, body=body).execute()
+            service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
