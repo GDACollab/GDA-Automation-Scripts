@@ -37,8 +37,25 @@ def load_board_info(board_id):
     
     return {"groups": total_groups, "columns": total_columns}
 
+def has_meeting_task(monday_settings, group, name):
+    meetings_name = monday_settings["meetingsBoardId"]
+    query = f"query {{ boards (ids: {meetings_name}) {{ groups {{ title items {{title}} }} }}}}"
+    request = send_request(query)
+    boards = request["data"]["boards"][0]
+    groups = request["groups"]
+    activeGroup = None
+    for group in groups:
+        if group["title"] == group:
+            activeGroup = group
+    if activeGroup == None:
+        print(f"Group {group} not found.")
+        return False
+    for item in activeGroup:
+        if item["title"] == name:
+            return True
+    return False
 
-def create_meeting_task(monday_settings, board_info, group, name, team, date, attatched_file_urls):
+def create_meeting_task(monday_settings, board_info, group_id, name, team, date, attatched_file_urls):
     meetings_name = monday_settings["meetingsBoardId"]
     date_name = board_info["columns"][monday_settings["date"]]
     docs_name = board_info["columns"][monday_settings["docs"]]
@@ -62,7 +79,8 @@ def create_meeting_task(monday_settings, board_info, group, name, team, date, at
 
     column_values = json.dumps(column_values)
     column_values = "\"" + column_values.replace("\"", "\\\"") + "\""
-    query = f"mutation {{ create_item(board_id: {meetings_name}, group_id: \"{ group }\", item_name: \"{name}\", column_values: {column_values}) {{ id }}}}"
+
+    query = f"mutation {{ create_item(board_id: {meetings_name}, group_id: \"{ group_id }\", item_name: \"{name}\", column_values: {column_values}) {{ id }}}}"
     send_request(query)
 
 # For testing:
@@ -74,4 +92,4 @@ if __name__ == "__main__":
     f.close()
 
     info = load_board_info(monday_settings["meetingsBoardId"])
-    create_meeting_task(monday_settings, info, "General Meetings", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+    create_meeting_task(monday_settings, info, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])

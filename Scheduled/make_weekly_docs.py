@@ -1,7 +1,7 @@
 import json
 import datetime
 
-from monday_task_creation import create_meeting_task, load_board_info
+from monday_task_creation import create_meeting_task, has_meeting_task, load_board_info
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -56,4 +56,5 @@ def make_docs(service, settings):
                 ]
             }
             file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
-            create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["name"], name, settings["docsToCopy"][doc]["teamId"], date_string, [file["webViewLink"]])
+            if not has_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
+                create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string, [file["webViewLink"]])
