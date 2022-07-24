@@ -39,21 +39,31 @@ def load_board_info(board_id):
 
 # Just to avoid overwhelming requests, we only get the recent tasks:
 def has_recent_meeting_task(monday_settings, group, name):
-    meetings_name = monday_settings["meetingsBoardId"]
-    query = f"query {{ boards (ids: {meetings_name}) {{ items(newest_first: true, limit: 50) {{ name group }} }}}}"
-    request = send_request(query)
-    board = request["data"]["boards"][0]
-    items = board["items"]
+    # And we save the meetings_list as a global for multiple calls (since it's requests to the same board).
+    global meetings_list
+    if meetings_list == None:
+        meetings_name = monday_settings["meetingsBoardId"]
+        query = f"query {{ boards (ids: {meetings_name}) {{ items(newest_first: true, limit: 50) {{ name group }} }}}}"
+        request = send_request(query)
+        meetings_list = request["data"]["boards"][0] 
+
+    items = meetings_list["items"]
     for item in items:
         if item["group"] == group and item["name"] == name:
             return True
     return False
 
-def create_meeting_task(monday_settings, board_info, group_id, name, team, date, attatched_file_urls):
+def create_meeting_task(monday_settings, group_id, name, team, date, attatched_file_urls):
     meetings_name = monday_settings["meetingsBoardId"]
-    date_name = board_info["columns"][monday_settings["date"]]
-    docs_name = board_info["columns"][monday_settings["docs"]]
-    person_name = board_info["columns"][monday_settings["person"]]
+
+    # To avoid repetitive requests, we load meetings info if we don't have it yet:
+    global meetings_info
+    if meetings_info == None:
+        meetings_info = load_board_info(meetings_name)
+
+    date_name = meetings_info["columns"][monday_settings["date"]]
+    docs_name = meetings_info["columns"][monday_settings["docs"]]
+    person_name = meetings_info["columns"][monday_settings["person"]]
 
     files = []
     for file in attatched_file_urls:
@@ -86,5 +96,4 @@ if __name__ == "__main__":
     f.close()
 
     if not has_recent_meeting_task(monday_settings, "Officer Meetings", "Officer Meeting 07/24/2022"):
-        info = load_board_info(monday_settings["meetingsBoardId"])
-        create_meeting_task(monday_settings, info, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+        create_meeting_task(monday_settings, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
