@@ -56,5 +56,7 @@ def make_docs(service, settings):
                 ]
             }
             file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
-            if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
-                create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string, [file["webViewLink"]])
+        
+        # Same thing, but for Monday.com tasks:
+        if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
+            create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string, [file["webViewLink"]])

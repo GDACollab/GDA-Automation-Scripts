@@ -2,6 +2,7 @@ import requests
 import json
 
 apiUrl = "https://api.monday.com/v2"
+meetings_list = None
 
 def setup_monday():
     f = open("monday.json")
@@ -43,13 +44,13 @@ def has_recent_meeting_task(monday_settings, group, name):
     global meetings_list
     if meetings_list == None:
         meetings_name = monday_settings["meetingsBoardId"]
-        query = f"query {{ boards (ids: {meetings_name}) {{ items(newest_first: true, limit: 50) {{ name group }} }}}}"
-        request = send_request(query)
+        query = f"query {{ boards (ids: {meetings_name}) {{ items(newest_first: true, limit: 50) {{ name group {{ title }} }} }}}}"
+        request = json.loads(send_request(query))
         meetings_list = request["data"]["boards"][0] 
 
     items = meetings_list["items"]
     for item in items:
-        if item["group"] == group and item["name"] == name:
+        if item["group"]["title"] == group and item["name"] == name:
             return True
     return False
 
