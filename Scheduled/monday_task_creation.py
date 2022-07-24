@@ -37,21 +37,15 @@ def load_board_info(board_id):
     
     return {"groups": total_groups, "columns": total_columns}
 
-def has_meeting_task(monday_settings, group, name):
+# Just to avoid overwhelming requests, we only get the recent tasks:
+def has_recent_meeting_task(monday_settings, group, name):
     meetings_name = monday_settings["meetingsBoardId"]
-    query = f"query {{ boards (ids: {meetings_name}) {{ groups {{ title items {{title}} }} }}}}"
+    query = f"query {{ boards (ids: {meetings_name}) {{ items(newest_first: true, limit: 50) {{ name group }} }}}}"
     request = send_request(query)
-    boards = request["data"]["boards"][0]
-    groups = request["groups"]
-    activeGroup = None
-    for group in groups:
-        if group["title"] == group:
-            activeGroup = group
-    if activeGroup == None:
-        print(f"Group {group} not found.")
-        return False
-    for item in activeGroup:
-        if item["title"] == name:
+    board = request["data"]["boards"][0]
+    items = board["items"]
+    for item in items:
+        if item["group"] == group and item["name"] == name:
             return True
     return False
 
@@ -91,5 +85,6 @@ if __name__ == "__main__":
     monday_settings = json.load(f)["monday.com"]
     f.close()
 
-    info = load_board_info(monday_settings["meetingsBoardId"])
-    create_meeting_task(monday_settings, info, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+    if not has_recent_meeting_task(monday_settings, "Officer Meetings", "Officer Meeting 07/24/2022"):
+        info = load_board_info(monday_settings["meetingsBoardId"])
+        create_meeting_task(monday_settings, info, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])

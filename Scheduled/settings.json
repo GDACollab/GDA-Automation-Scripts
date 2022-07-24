@@ -5,8 +5,8 @@
             "file": "",
             "folder": "1vbRjWMTe8dW3EwIoKEkNUgJx3jNMPJ60",
             "monday.com": {
-                "teamId": "655466",
-                "name": "General Meetings"
+                "name": "General Meetings",
+                "teamId": "655466"
             }
         },
         "Officer Meeting Notes": {
@@ -15,8 +15,8 @@
             "folder": "13osa6h9m_46zg4v-EHe0i-3fec2q7jYf",
             "makeNextWeek": true,
             "monday.com": {
-                "teamId": "655466",
-                "name": "Officer Meetings"
+                "name": "Officer Meetings",
+                "teamId": "655466"
             }
         },
         "Presidential Meeting Notes": {
@@ -24,17 +24,17 @@
             "file": "1eHPMtJXRdsNZQ4N2JIbuHp64daVjvheBVdv8roeZPAY",
             "folder": "1qL09cMtLFCsO4aYZRaRVXnYr7Kpc2mjd",
             "monday.com": {
-                "teamId": "655461",
-                "name": "Presidential Meetings"
+                "name": "Presidential Meetings",
+                "teamId": "655461"
             }
         }
     },
     "masterCalendar": "1RottfSG9A17brgQVgfoePjWUCMLyxBbzqcuz9ZQ5oHY",
-    "officerDrive": "0ADLDTXI24fcdUk9PVA",
     "monday.com": {
-        "meetingsBoardId": "2900308117",
         "date": "Date",
         "docs": "Attached Docs",
+        "meetingsBoardId": "2900308117",
         "person": "Person"
-    }
+    },
+    "officerDrive": "0ADLDTXI24fcdUk9PVA"
 }

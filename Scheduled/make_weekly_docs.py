@@ -1,7 +1,7 @@
 import json
 import datetime
 
-from monday_task_creation import create_meeting_task, has_meeting_task, load_board_info
+from monday_task_creation import create_meeting_task, has_recent_meeting_task, load_board_info
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -25,7 +25,7 @@ def get_week_monday(offset="Monday"):
         "Friday": 4,
         "Saturday": 5, #Stupid week conventions:
         "Sunday": -1,
-        "NextWeek": 7
+        "NextWeek": 6
     }
 
     today = datetime.date.today()
@@ -39,7 +39,7 @@ def make_docs(service, settings):
 
     for doc in settings["docsToCopy"]:
         date = get_week_monday("Sunday")
-        if settings["docsToCopy"][doc]["makeNextWeek"]:
+        if "makeNextWeek" in settings["docsToCopy"][doc] and settings["docsToCopy"][doc]["makeNextWeek"] == True:
             date = get_week_monday("NextWeek")
 
         date_string = f"{date.year}/{date.month}/{date.day}"
@@ -56,5 +56,5 @@ def make_docs(service, settings):
                 ]
             }
             file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
-            if not has_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
+            if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
                 create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string, [file["webViewLink"]])
