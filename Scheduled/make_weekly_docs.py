@@ -42,7 +42,13 @@ def make_docs(service, settings):
         if "makeNextWeek" in settings["docsToCopy"][doc] and settings["docsToCopy"][doc]["makeNextWeek"] == True:
             date = get_week_monday("NextWeek")
 
-        date_string = f"{date.year}/{date.month}/{date.day}"
+        month = str(date.month)
+        day = str(date.day)
+        if len(month) == 1:
+            month = "0" + month
+        if len(day) == 1:
+            day = "0" + day
+        date_string = f"{date.year}/{month}/{day}"
 
         name = f"[{date_string}] Week Of {doc}"
         # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
