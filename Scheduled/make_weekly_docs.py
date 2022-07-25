@@ -67,4 +67,4 @@ def make_docs(service, settings):
 
             # Same thing, but for Monday.com tasks:
             if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
-                create_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name, int(settings["docsToCopy"][doc]["monday.com"]["teamId"]), date_string, [link])
+                create_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string.replace("/", "-"), [link])

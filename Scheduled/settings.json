@@ -16,7 +16,7 @@
             "makeNextWeek": true,
             "monday.com": {
                 "name": "Officer Meetings",
-                "teamId": "655466"
+                "teamId": 655466
             }
         },
         "Presidential Meeting Notes": {
@@ -25,7 +25,7 @@
             "folder": "1qL09cMtLFCsO4aYZRaRVXnYr7Kpc2mjd",
             "monday.com": {
                 "name": "Presidential Meetings",
-                "teamId": "655461"
+                "teamId": 655461
             }
         }
     },

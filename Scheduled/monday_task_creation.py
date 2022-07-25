@@ -55,13 +55,16 @@ def has_recent_meeting_task(monday_settings, group, name):
             return True
     return False
 
-def create_meeting_task(monday_settings, group_id, name, team, date, attatched_file_urls):
+def create_meeting_task(monday_settings, group_name, name, team, date, attatched_file_urls):
     meetings_name = monday_settings["meetingsBoardId"]
 
     # To avoid repetitive requests, we load meetings info if we don't have it yet:
     global meetings_info
     if meetings_info == None:
         meetings_info = load_board_info(meetings_name)
+
+        
+    group_id = meetings_info["groups"][group_name]
 
     date_name = meetings_info["columns"][monday_settings["date"]]
     docs_name = meetings_info["columns"][monday_settings["docs"]]
@@ -79,7 +82,6 @@ def create_meeting_task(monday_settings, group_id, name, team, date, attatched_f
         "files": files
     }
     column_values[person_name] = {
-        "id": team,
         "personsAndTeams": [{
             "id": team,
             "kind": "team"
@@ -101,4 +103,4 @@ if __name__ == "__main__":
     f.close()
 
     if not has_recent_meeting_task(monday_settings, "Officer Meetings", "Officer Meeting 07/24/2022"):
-        create_meeting_task(monday_settings, "new_group", "New Task Test", 655466, "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+        create_meeting_task(monday_settings, "Officer Meetings", "New Task Test", 655466, "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
