@@ -58,6 +58,7 @@ def make_docs(service, settings):
             }
             file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
         elif settings["docsToCopy"][doc]["enabled"]:
+            # We need the file if it exists for monday.com automations (for the link):
             file = current_files["files"][0]
 
         # Same thing, but for Monday.com tasks:
