@@ -3,6 +3,7 @@ import json
 
 apiUrl = "https://api.monday.com/v2"
 meetings_list = None
+meetings_info = None
 
 def setup_monday():
     f = open("monday.json")
@@ -79,7 +80,10 @@ def create_meeting_task(monday_settings, group_id, name, team, date, attatched_f
     }
     column_values[person_name] = {
         "id": team,
-        "kind": "team"
+        "personsAndTeams": [{
+            "id": team,
+            "kind": "team"
+        }]
     }
 
     column_values = json.dumps(column_values)
@@ -97,4 +101,4 @@ if __name__ == "__main__":
     f.close()
 
     if not has_recent_meeting_task(monday_settings, "Officer Meetings", "Officer Meeting 07/24/2022"):
-        create_meeting_task(monday_settings, "new_group", "New Task Test", "655466", "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+        create_meeting_task(monday_settings, "new_group", "New Task Test", 655466, "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])

@@ -47,6 +47,7 @@ def make_docs(service, settings):
         name = f"[{date_string}] Week Of {doc}"
         # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
         current_files = service.files().list(q=f"name='{name}'", includeItemsFromAllDrives=True, supportsTeamDrives=True).execute()
+        file = None
         # If we're currently allowed to make the document, and if the document we're trying to make doesn't exist:
         if settings["docsToCopy"][doc]["enabled"] and len(current_files.get("files")) <= 0:
             body = {
@@ -56,7 +57,9 @@ def make_docs(service, settings):
                 ]
             }
             file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
-        
+        elif settings["docsToCopy"][doc]["enabled"]:
+            file = current_files["files"][0]
+
         # Same thing, but for Monday.com tasks:
         if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
-            create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, settings["docsToCopy"][doc]["monday.com"]["teamId"], date_string, [file["webViewLink"]])
+            create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, int(settings["docsToCopy"][doc]["monday.com"]["teamId"]), date_string, [file["webViewLink"]])
