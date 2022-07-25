@@ -47,20 +47,24 @@ def make_docs(service, settings):
         name = f"[{date_string}] Week Of {doc}"
         # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
         current_files = service.files().list(q=f"name='{name}'", includeItemsFromAllDrives=True, supportsTeamDrives=True).execute()
-        file = None
         # If we're currently allowed to make the document, and if the document we're trying to make doesn't exist:
-        if settings["docsToCopy"][doc]["enabled"] and len(current_files.get("files")) <= 0:
-            body = {
-                "name": name,
-                "parents": [
-                    settings["docsToCopy"][doc]["folder"]
-                ]
-            }
-            file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
-        elif settings["docsToCopy"][doc]["enabled"]:
-            # We need the file if it exists for monday.com automations (for the link):
-            file = current_files["files"][0]
+        if settings["docsToCopy"][doc]["enabled"]:
+            file = None
+            link = None
+            if len(current_files.get("files")) <= 0:
+                body = {
+                    "name": name,
+                    "parents": [
+                        settings["docsToCopy"][doc]["folder"]
+                    ]
+                }
+                file = service.files().copy(fileId=settings["docsToCopy"][doc]["file"], supportsAllDrives=True, body=body).execute()
+                link = file["webViewLink"]
+            else:
+                # We need the file if it exists for monday.com automations (for the link):
+                file = current_files["files"][0]
+                link = "https://docs.google.com/document/d/" + file["id"] + "/edit"
 
-        # Same thing, but for Monday.com tasks:
-        if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
-            create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, int(settings["docsToCopy"][doc]["monday.com"]["teamId"]), date_string, [file["webViewLink"]])
+            # Same thing, but for Monday.com tasks:
+            if not has_recent_meeting_task(settings["monday.com"], settings["docsToCopy"][doc]["monday.com"]["name"], name):
+                create_meeting_task(settings["monday.com"], monday_board_info, settings["docsToCopy"][doc]["monday.com"]["name"], name, int(settings["docsToCopy"][doc]["monday.com"]["teamId"]), date_string, [link])
