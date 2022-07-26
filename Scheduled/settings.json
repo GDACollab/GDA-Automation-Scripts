@@ -4,6 +4,10 @@
             "enabled": false,
             "file": "",
             "folder": "1vbRjWMTe8dW3EwIoKEkNUgJx3jNMPJ60",
+            "date": {
+                "day": "Friday",
+                "time": "18:00"
+            },
             "monday.com": {
                 "name": "General Meetings",
                 "teamId": "655466"
@@ -13,7 +17,10 @@
             "enabled": true,
             "file": "1tiF0EEUZALJwSPckHazUzuDKyZiQf58QpuiC0uL5NxQ",
             "folder": "13osa6h9m_46zg4v-EHe0i-3fec2q7jYf",
-            "makeNextWeek": true,
+            "date": {
+                "day": "NextWeekSunday",
+                "time": "13:00"
+            },
             "monday.com": {
                 "name": "Officer Meetings",
                 "teamId": 655466
@@ -23,6 +30,10 @@
             "enabled": true,
             "file": "1eHPMtJXRdsNZQ4N2JIbuHp64daVjvheBVdv8roeZPAY",
             "folder": "1qL09cMtLFCsO4aYZRaRVXnYr7Kpc2mjd",
+            "date": {
+                "day": "Saturday",
+                "time": "11:00"
+            },
             "monday.com": {
                 "name": "Presidential Meetings",
                 "teamId": 655461

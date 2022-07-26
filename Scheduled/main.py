@@ -1,3 +1,6 @@
+# DOCUMENTATION LINK: https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
+# PLEASE READ ABOVE ^
+
 import sys
 import os.path
 import json
@@ -6,9 +9,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from drive_login import login, full_login_refresh
-from make_weekly_docs import make_docs
 from read_calendar import read_calendar
-from monday_task_creation import setup_monday
+from make_weekly_meetings.make_weekly_meetings import make_meetings
+from make_weekly_meetings.monday_task_creation import setup_monday
 
 def main():
     args = sys.argv[1:]
@@ -34,7 +37,7 @@ def main():
 
         creds = login()
         service = build('drive', 'v3', credentials=creds)
-        make_docs(service, settings)
+        make_meetings(service, settings)
 
     except HttpError as error:
         print(f'An error has occured: {error}')

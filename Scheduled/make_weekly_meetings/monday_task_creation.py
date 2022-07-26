@@ -6,7 +6,7 @@ meetings_list = None
 meetings_info = None
 
 def setup_monday():
-    f = open("monday.json")
+    f = open("../monday.json")
     apiKey = json.load(f)["monday.com"]
     f.close()
 
@@ -55,7 +55,15 @@ def has_recent_meeting_task(monday_settings, group, name):
             return True
     return False
 
-def create_meeting_task(monday_settings, group_name, name, team, date, attatched_file_urls):
+# Required arguments:
+# monday_settings - The "monday.com" key-value pair from global settings.
+# group_name - The name of the group to search for. This will automatically search for the corresponding ID. Like "General Meetings" (should be called this in the Monday.com meetings board!).
+# name - The name of the task.
+# Optional kwargs:
+# attached_file_urls - Array of URLs to attach as file URLs.
+# team_id - Team ID to assign the task to.
+# date - Dictionary of general format {"time": "HH:MM" (Military Time Format), "date": "YYYY-MM-DD"} or some similar format. "time" is optional.
+def create_meeting_task(monday_settings, group_name, name, **kwargs):
     meetings_name = monday_settings["meetingsBoardId"]
 
     # To avoid repetitive requests, we load meetings info if we don't have it yet:
@@ -70,23 +78,30 @@ def create_meeting_task(monday_settings, group_name, name, team, date, attatched
     docs_name = meetings_info["columns"][monday_settings["docs"]]
     person_name = meetings_info["columns"][monday_settings["person"]]
 
-    files = []
-    for file in attatched_file_urls:
-        files.append({"name": "Meeting Notes " + date, "fileType": "LINK", "linkToFile": file})
 
     column_values = {}
-    column_values[date_name] = {
-        "date": date
-    }
-    column_values[docs_name] = {
-        "files": files
-    }
-    column_values[person_name] = {
-        "personsAndTeams": [{
-            "id": team,
-            "kind": "team"
-        }]
-    }
+    if "date" in kwargs and "date" in kwargs["date"]:
+        column_values[date_name] = {
+            "date": kwargs["date"]["date"]
+        }
+        if "time" in kwargs["date"]:
+            column_values[date_name]["time"] = kwargs["date"]["time"]
+    
+    if "attached_file_urls" in kwargs:
+        files = []
+        for file in kwargs["attached_file_urls"]:
+            files.append({"name": f"Meeting Notes {group_name}", "fileType": "LINK", "linkToFile": file})
+        column_values[docs_name] = {
+            "files": files
+        }
+    
+    if "team_id" in kwargs:
+        column_values[person_name] = {
+            "personsAndTeams": [{
+                "id": kwargs["team_id"],
+                "kind": "team"
+            }]
+        }
 
     column_values = json.dumps(column_values)
     column_values = "\"" + column_values.replace("\"", "\\\"") + "\""
@@ -98,7 +113,7 @@ def create_meeting_task(monday_settings, group_name, name, team, date, attatched
 if __name__ == "__main__":
     setup_monday()
 
-    f = open("settings.json")
+    f = open("../settings.json")
     monday_settings = json.load(f)["monday.com"]
     f.close()
 
