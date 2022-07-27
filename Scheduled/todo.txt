@@ -4,4 +4,4 @@ Add read_calendar functions for creating and destroying weekly meetings?
 Add automation downloading and compiling usage reports
 Error proofing this so that broken or missing parts won't impact the whole.
 Add ical creation support
-Allow duplication to be set somewhere easier than settings.json(?)
+Allow duplication to be set somewhere easier than settings.json(?). Should be able to influence settings.json. (Like an easier alternative to the master calendar functions?)

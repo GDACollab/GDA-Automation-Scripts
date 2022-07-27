@@ -2,7 +2,7 @@ import json
 import datetime
 
 from monday_task_creation import create_meeting_task, has_recent_meeting_task
-from make_weekly_docs import get_if_meeting_doc_exists, copy_doc
+from make_weekly_docs import get_if_meeting_doc_exists, copy_doc, extract_file_id
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -60,7 +60,7 @@ def make_meetings(service, settings):
             if "file" in docSettings and "folder" in docSettings:
                 link = get_if_meeting_doc_exists(service, name)
                 if link == False:
-                    link = copy_doc(service, docSettings["file"], docSettings["folder"], name)
+                    link = copy_doc(service, extract_file_id(docSettings["file"]), extract_file_id(docSettings["folder"]), name)
 
             # Same thing, but for Monday.com tasks:
             if "monday.com" in docSettings and not has_recent_meeting_task(settings["monday.com"], docSettings["monday.com"]["name"], name):

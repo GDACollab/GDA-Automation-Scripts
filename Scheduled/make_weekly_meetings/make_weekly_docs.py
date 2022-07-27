@@ -1,3 +1,4 @@
+import re
 # Returns a link if it finds the document. Otherwise, returns false:
 def get_if_meeting_doc_exists(drive_service, name):
     # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
@@ -21,3 +22,9 @@ def copy_doc(drive_service, file_id, folder_id, name):
     }
     file = drive_service.files().copy(fileId=file_id, supportsAllDrives=True, body=body).execute()
     return file["webViewLink"]
+
+# Extracts file id from a link. This should work even if the "link" is just the file id itself:
+def extract_file_id(link):
+    id_str = re.search("(\/)*[\d\w-]{9,}(\/)*", link)
+    id_str = id_str.group().replace("/", "")
+    return id_str
