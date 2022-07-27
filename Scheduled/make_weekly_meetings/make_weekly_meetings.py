@@ -34,9 +34,6 @@ def get_week_monday(offset="Monday"):
 
 def make_meetings(service, settings):
 
-    # ID of the officer drive. Not sure we need it right now?
-    # officer_drive = settings["officerDrive"]
-
     for doc in settings["docsToCopy"]:
         docSettings = settings["docsToCopy"][doc]
 
