@@ -19,7 +19,8 @@ def get_curr_range(values):
 
     # Since we already have the full range, let's just convert it into actual indices:
     if ranges_dict != {}:
-        for (key, value) in ranges_dict:
+        for key in ranges_dict:
+            value = ranges_dict[key]
             for i in range(len(value)):
                 # In case the selected range has a $ sign for reference:
                 ref_removed = value[i].replace("$", "")
@@ -38,13 +39,21 @@ def read_automation_json(curr_range, values):
             row = values[i]
             json_object = {}
             for j in range(curr_range[0][0], curr_range[1][0] + 1):
+                # Skip the first cell, because that's just the pointer to the settings:
+                if i == curr_range[0][1] and j == curr_range[0][0]:
+                    continue
+
+                # And again, keep going until we run into blank columns:
                 if j <= len(row) - 1:
                     col = row[j]
-                    if len(keys) == 0:
+                    # Add 1 to ignore the first column:
+                    j_index = j - (curr_range[0][0] + 1)
+                    # First row is keys:
+                    if i == curr_range[0][1]:
                         keys.append(col)
                     else:
                         # We assume the first value is always the key:
-                        if j == 0:
+                        if j == curr_range[0][0]:
                             json_dict[col] = json_object
                         else:
                             # If the column is blank, we don't want to worry about it:
@@ -53,15 +62,15 @@ def read_automation_json(curr_range, values):
                             # Do we have a column formatted like {"json": "data"}? If yes, load that in as new json data.
                             try:
                                 loaded_json = json.loads(col)
-                                json_object[values[j]] = loaded_json
+                                json_object[keys[j_index]] = loaded_json
                             except ValueError as e:
                                 if col.lower() == "true" or col.lower() == "false":
                                     if col.lower() == "true":
-                                        json_object[values[j]] = True
+                                        json_object[keys[j_index]] = True
                                     else:
-                                        json_object[values[j]] = False
+                                        json_object[keys[j_index]] = False
                                 else:
-                                    json_object[values[j]] = col
+                                    json_object[keys[j_index]] = col
             json_dict[row[curr_range[0][0]]] = json_object
     return json_dict
 
@@ -75,22 +84,37 @@ def read_calendar(sheet_service, settings):
         print("Could not find AUTOMATION_ ranges for read_calendar.py. Check https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing for details.")
         return
     
-    for (key, curr_range) in range_dict:
-        if re.search("_json$"):
+    for key in range_dict:
+        curr_range = range_dict[key]
+        if re.search("_json$", key):
             doc_json = read_automation_json(curr_range, values)
+            print(doc_json)
 
             # Now to find where we're writing all of this data in settings.json:
-            json_pointer = re.sub("^settings->", "", values[curr_range[0][0]])
+            json_pointer = re.sub("^settings->", "", values[curr_range[0][1]][curr_range[0][0]])
             location_pointer = json_pointer.split("->")
             curr_location = settings
             for location in location_pointer:
                 if location != "":
                     curr_location = curr_location[location]
 
-            for (key, value) in doc_json:
+            for key in doc_json:
+                value = doc_json[key]
                 curr_location[key] = value
 
     s = open("settings.json", 'w')
     # From https://stackoverflow.com/questions/37398301/json-dumps-format-python
     json.dump(settings, s, sort_keys=True, indent=4, separators=(',', ': '))
     s.close()
+
+
+if __name__ == "__main__":
+    from drive_login import login
+    from googleapiclient.discovery import build
+    creds = login()
+    sheet_service = build('sheets', 'v4', credentials=creds)
+
+    f = open('settings.json')
+    settings = json.load(f)
+    f.close()
+    read_calendar(sheet_service, settings)
