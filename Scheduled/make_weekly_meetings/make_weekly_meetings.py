@@ -88,4 +88,4 @@ def make_meetings(service, settings):
 
                 if link != None:
                     kwargs["url"] = link
-                add_event_to_calendar(doc, name, docSettings["date"]["date"], time=docSettings["date"])
+                add_event_to_calendar(doc, name, date_string.replace("/", "-"), time=docSettings["date"])
