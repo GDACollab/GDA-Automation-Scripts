@@ -1,8 +1,9 @@
 import json
 import datetime
 
-from monday_task_creation import create_meeting_task, has_recent_meeting_task
+from monday_task_creation import create_meeting_task, has_recent_meeting_task, setup_monday
 from make_weekly_docs import get_if_meeting_doc_exists, copy_doc, extract_file_id
+from make_weekly_calendars import calendar_has_event, add_event_to_calendar, init_calendar_manager
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -32,8 +33,11 @@ def get_week_monday(offset="Monday"):
     today = datetime.date.today()
     return today + datetime.timedelta(days=-(today.weekday())) + datetime.timedelta(days=offsets[offset.lower()])
 
-def make_meetings(service, settings):
+def init_meeting_creation():
+    init_calendar_manager()
+    setup_monday()
 
+def make_meetings(service, settings):
     for doc in settings["docsToCopy"]:
         docSettings = settings["docsToCopy"][doc]
 
@@ -76,3 +80,12 @@ def make_meetings(service, settings):
                     kwargs["attached_file_urls"] = [link]
                 
                 create_meeting_task(settings["monday.com"], docSettings["monday.com"]["name"], name, **kwargs)
+            
+            if "date" in docSettings:
+                kwargs = {}
+                if "time" in docSettings["date"]:
+                    kwargs["time"] = docSettings["date"]["time"]
+
+                if link != None:
+                    kwargs["url"] = link
+                add_event_to_calendar(doc, name, docSettings["date"]["date"], time=docSettings["date"])

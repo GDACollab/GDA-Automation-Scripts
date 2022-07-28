@@ -1,6 +1,5 @@
-Allow for multiple functions on one line for the calendar
-Have scripts overwrite automation functions it finds when they've been called?
-Add read_calendar functions for creating and destroying weekly meetings?
 Add automation downloading and compiling usage reports
 Error proofing this so that broken or missing parts won't impact the whole.
 Add ical creation support
+For ics creation, add support for meetings that it detects on monday.com are also subscribable?
+Add alarms to ical

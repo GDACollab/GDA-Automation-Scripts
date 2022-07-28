@@ -10,8 +10,7 @@ from googleapiclient.errors import HttpError
 
 from drive_login import login, full_login_refresh
 from read_calendar import read_calendar
-from make_weekly_meetings.make_weekly_meetings import make_meetings
-from make_weekly_meetings.monday_task_creation import setup_monday
+from make_weekly_meetings.make_weekly_meetings import init_meeting_creation, make_meetings
 
 def main():
     args = sys.argv[1:]
@@ -29,7 +28,7 @@ def main():
         s.close()
         creds = login()
 
-        setup_monday()
+        init_meeting_creation()
 
         # Should have permission to do this with current scopes. Add https://www.googleapis.com/auth/spreadsheets.readonly otherwise
         sheet_service = build('sheets', 'v4', credentials=creds)
