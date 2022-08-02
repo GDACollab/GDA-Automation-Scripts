@@ -60,6 +60,7 @@ def make_meetings(service, settings):
             # If we have files and folders to copy from Google Drive:
             if "file" in docSettings and "folder" in docSettings:
                 link = get_if_meeting_doc_exists(service, name)
+                print(link)
                 if link == False:
                     link = copy_doc(service, extract_file_id(docSettings["file"]), extract_file_id(docSettings["folder"]), name)
 

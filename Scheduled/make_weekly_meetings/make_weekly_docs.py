@@ -1,10 +1,11 @@
 import re
 # Returns a link if it finds the document. Otherwise, returns false:
 def get_if_meeting_doc_exists(drive_service, name):
-    # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python
-    current_files = drive_service.files().list(q=f"name='{name}'", includeItemsFromAllDrives=True, supportsTeamDrives=True).execute()
+    # Specifics on using q= to search for files: https://developers.google.com/drive/api/guides/search-files#python - And this fields="" just tells drive to only return links
+    # More on fields: https://developers.google.com/drive/api/guides/fields-parameter
+    current_files = drive_service.files().list(q=f"name='{name}'", includeItemsFromAllDrives=True, supportsTeamDrives=True, fields="files/webViewLink").execute()
     if len(current_files.get("files")) > 0:
-        return "https://docs.google.com/document/d/" + current_files["files"][0]["id"] + "/edit"
+        return current_files["files"][0]["webViewLink"]
     else:
         return False
 
