@@ -1,9 +1,9 @@
 import json
 import datetime
 
-from monday_task_creation import create_meeting_task, has_recent_meeting_task, setup_monday
-from make_weekly_docs import get_if_meeting_doc_exists, copy_doc, extract_file_id
-from make_weekly_calendars import calendar_has_event, add_event_to_calendar, init_calendar_manager
+from make_weekly_meetings.monday_task_creation import create_meeting_task, has_recent_meeting_task, setup_monday
+from make_weekly_meetings.make_weekly_docs import get_if_meeting_doc_exists, copy_doc, extract_file_id
+from make_weekly_meetings.make_weekly_calendars import calendar_has_event, add_event_to_calendar, init_calendar_manager
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -55,7 +55,7 @@ def make_meetings(service, settings):
 
         name = f"[{date_string}] {doc}"
         # If we're currently allowed to make the document, and if the document we're trying to make doesn't exist:
-        if docSettings["enabled"]:
+        if "enabled" in docSettings and docSettings["enabled"]:
             link = None
             # If we have files and folders to copy from Google Drive:
             if "file" in docSettings and "folder" in docSettings:
@@ -88,4 +88,4 @@ def make_meetings(service, settings):
 
                 if link != None:
                     kwargs["url"] = link
-                add_event_to_calendar(doc, name, date_string.replace("/", "-"), time=docSettings["date"])
+                add_event_to_calendar(doc, name, date_string.replace("/", "-"), time=docSettings["date"]["time"])

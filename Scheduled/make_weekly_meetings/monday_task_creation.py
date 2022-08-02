@@ -6,7 +6,7 @@ meetings_list = None
 meetings_info = None
 
 def setup_monday():
-    f = open("../monday.json")
+    f = open("monday.json")
     apiKey = json.load(f)["monday.com"]
     f.close()
 
@@ -85,7 +85,8 @@ def create_meeting_task(monday_settings, group_name, name, **kwargs):
             "date": kwargs["date"]["date"]
         }
         if "time" in kwargs["date"]:
-            column_values[date_name]["time"] = kwargs["date"]["time"]
+            # Have to add a seconds value as well:
+            column_values[date_name]["time"] = kwargs["date"]["time"] + ":00"
     
     if "attached_file_urls" in kwargs:
         files = []
@@ -118,4 +119,4 @@ if __name__ == "__main__":
     f.close()
 
     if not has_recent_meeting_task(monday_settings, "Officer Meetings", "Officer Meeting 07/24/2022"):
-        create_meeting_task(monday_settings, "Officer Meetings", "New Task Test", 655466, "2022-07-20", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])
+        create_meeting_task(monday_settings, "Officer Meetings", "New Task Test", 655466, "2022-07-24", ["https://docs.google.com/document/d/1PetNAMsppulIHRMpO7YhA9D6pGZlZCyw_2AeECV-QwQ/edit"])

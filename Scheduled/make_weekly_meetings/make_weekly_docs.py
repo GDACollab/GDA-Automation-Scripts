@@ -20,7 +20,7 @@ def copy_doc(drive_service, file_id, folder_id, name):
             folder_id
         ]
     }
-    file = drive_service.files().copy(fileId=file_id, supportsAllDrives=True, body=body).execute()
+    file = drive_service.files().copy(fileId=file_id, supportsAllDrives=True, body=body, fields="webViewLink").execute()
     return file["webViewLink"]
 
 # Extracts file id from a link. This should work even if the "link" is just the file id itself:
