@@ -95,7 +95,7 @@ def make_meetings(service, settings):
                     if "time" in docSettings["date"]:
                         # TODO: Move this conversion up, as with the TODO above.
                         time_split = docSettings["date"]["time"].split(":")
-                        time_utc = utc.localize(datetime.datetime(year=date.year, month=date.month, day=date.day, hour=int(time_split[0]), minute=int(time_split[1]), tzinfo=western))
+                        time_utc = utc.astimezone(datetime.datetime(year=date.year, month=date.month, day=date.day, hour=int(time_split[0]), minute=int(time_split[1]), tzinfo=western))
                         hour = str(time_utc.hour)
                         minute = str(time_utc.minute)
                         if len(hour) == 1:
