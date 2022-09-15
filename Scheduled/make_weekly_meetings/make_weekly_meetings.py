@@ -40,8 +40,8 @@ def get_week_monday(offset="Monday"):
     today = western.localize(datetime.datetime.now())
     return today + datetime.timedelta(days=-(today.weekday())) + datetime.timedelta(days=offsets[offset.lower()])
 
-def init_meeting_creation():
-    init_calendar_manager()
+def init_meeting_creation(calendar_service):
+    init_calendar_manager(calendar_service)
     setup_monday()
 
 def make_meetings(service, settings):

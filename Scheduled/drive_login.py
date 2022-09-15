@@ -8,7 +8,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # So we can only look at and make files SPECIFIC to this app. That basically means we're allowed to look at files and copy them to other places. No deleting.
 # If you feel this somehow needs to be expanded, you can add the https://www.googleapis.com/auth/drive.readonly. You also have to make sure the OAuth consent screen has the
 # relevant scopes enabled.
-SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.readonly']
+
+# Also added control over calendars for subscribable gcal events with attendees.
+SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.readonly', 'https://www.googleapis.com/auth/calendar']
 
 def login_refresh():
     flow = InstalledAppFlow.from_client_secrets_file(
