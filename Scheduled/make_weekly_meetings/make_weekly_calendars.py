@@ -146,7 +146,7 @@ def write_calendars():
         with open("../calendars/" + calendar_name + ".ics", 'w') as f:
             f.writelines(calendars[calendar_name].serialize_iter())
 
-if __name__ == "__main__":
+def test():
     from drive_login import login
     from googleapiclient.discovery import build
 

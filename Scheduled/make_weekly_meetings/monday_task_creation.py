@@ -114,7 +114,7 @@ def create_meeting_task(monday_settings, group_name, name, **kwargs):
 if __name__ == "__main__":
     setup_monday()
 
-    f = open("../settings.json")
+    f = open("settings.json")
     monday_settings = json.load(f)["monday.com"]
     f.close()
 
