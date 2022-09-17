@@ -4,7 +4,6 @@ import pytz
 
 from make_weekly_meetings.monday_task_creation import create_meeting_task, has_recent_meeting_task, setup_monday
 from make_weekly_meetings.make_weekly_docs import get_if_meeting_doc_exists, copy_doc, extract_file_id
-from make_weekly_meetings.make_weekly_calendars import calendar_has_event, add_event_to_calendar, init_calendar_manager
 
 # I'm currently documenting how I intend for this all to work in https://docs.google.com/document/d/14Tb3xYnoqSR5jlgUHWEKbHgXnAZKVc1V9sFDW5kJ4b4/edit?usp=sharing
 # So go check that out.
@@ -40,8 +39,7 @@ def get_week_monday(offset="Monday"):
     today = western.localize(datetime.datetime.now())
     return today + datetime.timedelta(days=-(today.weekday())) + datetime.timedelta(days=offsets[offset.lower()])
 
-def init_meeting_creation(calendar_service):
-    init_calendar_manager(calendar_service)
+def init_meeting_creation():
     setup_monday()
 
 def make_meetings(service, settings):
@@ -95,7 +93,7 @@ def make_meetings(service, settings):
                     if "time" in docSettings["date"]:
                         # TODO: Move this conversion up, as with the TODO above.
                         time_split = docSettings["date"]["time"].split(":")
-                        time_utc = utc.astimezone(datetime.datetime(year=date.year, month=date.month, day=date.day, hour=int(time_split[0]), minute=int(time_split[1]), tzinfo=western))
+                        time_utc = datetime.datetime(year=date.year, month=date.month, day=date.day, hour=int(time_split[0]), minute=int(time_split[1]), tzinfo=western).astimezone(utc)
                         hour = str(time_utc.hour)
                         minute = str(time_utc.minute)
                         if len(hour) == 1:
@@ -119,4 +117,4 @@ def make_meetings(service, settings):
 
                 if link != None:
                     kwargs["url"] = link
-                add_event_to_calendar(doc, name, date_string.replace("/", "-"), time=docSettings["date"]["time"])
+                #add_event_to_calendar(doc, name, date_string.replace("/", "-"), time=docSettings["date"]["time"])

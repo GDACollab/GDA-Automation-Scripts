@@ -28,8 +28,8 @@ def main():
         s.close()
         creds = login()
 
-        calendar_service = build('calendars', 'v3', credentials=creds)
-        init_meeting_creation(calendar_service)
+        #calendar_service = build('calendars', 'v3', credentials=creds)
+        init_meeting_creation()
 
         # Should have permission to do this with current scopes. Add https://www.googleapis.com/auth/spreadsheets.readonly otherwise
         sheet_service = build('sheets', 'v4', credentials=creds)
