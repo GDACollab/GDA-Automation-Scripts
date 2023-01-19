@@ -1,0 +1,14 @@
+{
+  "name": "gda-chan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gdachan.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node gdachan.js"
+  },
+  "author": "",
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  }
+}
