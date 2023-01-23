@@ -1,6 +1,9 @@
-import json, discord, datetime
-from os.path import exists as path_exists
+import json, discord, datetime, os.path
 from datetime import datetime
+
+# From https://stackoverflow.com/questions/4060221/how-to-reliably-open-a-file-in-the-same-directory-as-the-currently-running-scrip
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -10,8 +13,9 @@ async def read_vc_users():
 	date_string = d.strftime("%Y/%m/%d")
 	time_string = d.strftime("%H:%M:%S")
 	
-	new_file = not path_exists("./vc.csv")
-	f = open("./vc.csv", "a")
+	vc = os.path.join(__location__, "./vc.csv")
+	new_file = not os.path.exists(vc)
+	f = open(vc, "a")
 
 	if new_file:
 		f.write("Server Name,Channel Name,Date,Time,# of Members\n")
@@ -36,6 +40,6 @@ async def on_ready():
 
 
 if __name__ == "__main__":
-	with open('token.json') as f:
+	with open(os.path.join(__location__, 'token.json')) as f:
 		data = json.load(f)
 		client.run(data["token"])
