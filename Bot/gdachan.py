@@ -17,7 +17,7 @@ async def read_vc_users():
 	new_file = not os.path.exists(vc)
 	f = open(vc, "a")
 
-	print("Server Name,Channel Name,Date,Time,# of Members\n")
+	print("Server Name,Channel Name,Date,Time,# of Members")
 	if new_file:
 		f.write("Server Name,Channel Name,Date,Time,# of Members\n")
 
@@ -27,17 +27,17 @@ async def read_vc_users():
 			for channel in channels:
 				if type(channel) == discord.VoiceChannel:
 					f.write(f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n")
-					print(f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n")
+					print(f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}")
 		else:
 			# Unavailable
 			f.write(f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n")
-			print(f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n")
+			print(f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE")
 	f.close()
 
 
 @client.event
 async def on_ready():
-	print(f"Logged in as {client.user}")
+	print(f"Logged in as {client.user}\n")
 	await read_vc_users()
 	await client.close()
 
