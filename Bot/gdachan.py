@@ -1,4 +1,4 @@
-import json, discord, datetime, os.path
+import json, discord, datetime, os
 from datetime import datetime
 
 # From https://stackoverflow.com/questions/4060221/how-to-reliably-open-a-file-in-the-same-directory-as-the-currently-running-scrip
