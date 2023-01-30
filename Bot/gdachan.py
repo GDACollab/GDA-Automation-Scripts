@@ -13,32 +13,43 @@ __location__ = os.path.realpath(
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
-def get_existing_drive_id(path):
+def read_attendance_csv(path):
 	if not os.path.exists(path):
-		return None
+		return None, ""
 
 	csv_file = open(path, "rb+")
 
 	# Hack to append file ID to update to the end of the current CSV:
+	line_count = 0
 	try:
-		csv_file.seek(-2, os.SEEK_END)
-		while csv_file.read(1) != b'\n':
+		csv_file.seek(0, os.SEEK_END)
+		while line_count < 2:
 			csv_file.seek(-2, os.SEEK_CUR)
+			if csv_file.read(1) == b'\n':
+				line_count += 1
 	except OSError as e:
 		print(f"Error seeking {path}: {e}")
 		csv_file.seek(0)
-	line = csv_file.readline().decode()
+	# Get the last line with a date (we just assume it's the second to last line. We will update if lastline doesn't have a file ID)
+	last_dateline = csv_file.readline().decode()
+	lastline = csv_file.readline().decode()
 
 	existing_id = None
-	if "|" in line:
-		existing_id = line.split("|")[0]
+	if "|" in lastline:
+		existing_id = lastline.split("|")[0]
 		existing_size = os.path.getsize(path)
-		csv_file.truncate(existing_size - len(line.encode('utf-8')))
+		# We don't want the file ID to be included in any uploads to drive:
+		csv_file.truncate(existing_size - len(lastline.encode('utf-8')))
+	else:
+		last_dateline = lastline
 	csv_file.seek(0, os.SEEK_CUR)
 	csv_file.close()
-	return existing_id
+	return existing_id, last_dateline
 
 def upload_file_to_drive(path, name, existing_id):
+	if not os.path.exists(path):
+		print(f"Error, cannot upload {name} to drive with existing id {existing_id}. {path} does not exist.")
+		return
 	global drive
 
 	if existing_id != None:
@@ -110,9 +121,27 @@ async def on_ready():
 	file_name = f"{month_string}_voice_attendance.csv"
 	file_path= os.path.join(__location__, file_name)
 	
-	existing_id = get_existing_drive_id(file_path)
+	existing_id, dateline = read_attendance_csv(file_path)
+	pastdate = dateline.split(",")[2]
+
 	await read_vc_users(file_path, date_string, time_string)
-	upload_file_to_drive(file_path, file_name, existing_id)
+	# Is this the first time we're writing to today?
+	# This ensures we upload the file to drive at most once per day.
+	if pastdate != date_string:
+		# Are we even in the same month as the last recorded date?
+		pastdate_split = pastdate.split("/")
+		date_string_split = date_string.split("/")
+		is_same_month = pastdate_split[1] == date_string_split[1] and pastdate_split[0] == date_string_split[0]
+		if not is_same_month:
+			previous_month_full = datetime.strptime(pastdate_split[1], "%m").strftime("%B")
+			previous_file_name = f"{previous_month_full}_voice_attendance.csv"
+			previous_file_path = os.path.join(__location__, file_name)
+
+			if os.path.exists(previous_file_path):
+				upload_file_to_drive(previous_file_path, previous_file_name)
+
+		# Regardless, upload today's drive file:
+		upload_file_to_drive(file_path, file_name, existing_id)
 	await client.close()
 
 
