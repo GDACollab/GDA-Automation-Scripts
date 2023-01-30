@@ -1,5 +1,10 @@
-import json, discord, datetime, os
+import json, discord, datetime, os, sys
 from datetime import datetime
+from drive_login import login
+
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 
 # From https://stackoverflow.com/questions/4060221/how-to-reliably-open-a-file-in-the-same-directory-as-the-currently-running-scrip
 __location__ = os.path.realpath(
@@ -8,41 +13,123 @@ __location__ = os.path.realpath(
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
-async def read_vc_users():
-	d = datetime.now()
-	date_string = d.strftime("%Y/%m/%d")
-	time_string = d.strftime("%H:%M:%S")
+def get_existing_drive_id(path):
+	if not os.path.exists(path):
+		return None
+
+	csv_file = open(path, "rb+")
+
+	# Hack to append file ID to update to the end of the current CSV:
+	try:
+		csv_file.seek(-2, os.SEEK_END)
+		while csv_file.read(1) != b'\n':
+			csv_file.seek(-2, os.SEEK_CUR)
+	except OSError as e:
+		print(f"Error seeking {path}: {e}")
+		csv_file.seek(0)
+	line = csv_file.readline().decode()
+
+	existing_id = None
+	if "|" in line:
+		existing_id = line.split("|")[0]
+		existing_size = os.path.getsize(path)
+		csv_file.truncate(existing_size - len(line.encode('utf-8')))
+	csv_file.seek(0, os.SEEK_CUR)
+	csv_file.close()
+	return existing_id
+
+def upload_file_to_drive(path, name, existing_id):
+	global drive
+
+	if existing_id != None:
+		try:
+			drive.files().get(fileId=existing_id, fields='id').execute()
+		except HttpError as e:
+			print(f"{existing_id} does not likely exist on the drive. Error: {e}")
+			existing_id = None
+
+	csv = MediaFileUpload(path, mimetype='text/csv')
+	metadata = {'name': name, 'mimeType': 'text/csv'}
+
+	csv_file = open(path, "a")
+	try:
+		if existing_id == None:
+			metadata["parents"] = ["1DjNOtRnlhhiEMFk-Y3UO4WuWIndZuixB"]
+			file = drive.files().create(body=metadata, media_body=csv, fields='id', supportsAllDrives=True).execute()
+			existing_id = file.get('id')
+			print(f"Uploaded {name} with file ID: {existing_id}")
+		else:
+			file = drive.files().update(fileId=existing_id, body=metadata, media_body=csv, fields='id', supportsAllDrives=True).execute()
+			existing_id = file.get('id')
+			print(f"Updated {name} with file ID: {existing_id}")
+		csv_file.write(f"{existing_id}|\n")
+	except HttpError as error:
+		print(f"Error uploading {name}: {error}")
 	
-	vc = os.path.join(__location__, "./vc.csv")
-	new_file = not os.path.exists(vc)
-	f = open(vc, "a")
+	csv_file.close()
+
+async def read_vc_users(file_path, date_string, time_string):
+	
+	new_file = not os.path.exists(file_path)
+	f = open(file_path, "a")
 
 	print("Server Name,Channel Name,Date,Time,# of Members")
 	if new_file:
 		f.write("Server Name,Channel Name,Date,Time,# of Members\n")
 
+	header = f"---,---,{date_string},{time_string},---\n"
+	print(header)
+	f.write(header)
+
 	async for guild in client.fetch_guilds():
 		if not guild.unavailable:
 			channels = await guild.fetch_channels()
 			for channel in channels:
-				if type(channel) == discord.VoiceChannel:
-					f.write(f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n")
-					print(f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}")
+				if type(channel) == discord.VoiceChannel and len(channel.members) > 0:
+					entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
+					f.write(entry)
+					print(entry)
 		else:
 			# Unavailable
-			f.write(f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n")
-			print(f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE")
+			entry = f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n"
+			f.write(entry)
+			print(entry)
 	f.close()
 
 
 @client.event
 async def on_ready():
 	print(f"Logged in as {client.user}\n")
-	await read_vc_users()
+	await client.change_presence(status=discord.CustomActivity("owo"))
+
+	d = datetime.now()
+	date_string = d.strftime("%Y/%m/%d")
+	time_string = d.strftime("%H:%M:%S")
+	month_string = d.strftime("%Y_%B")
+
+	file_name = f"{month_string}_voice_attendance.csv"
+	file_path= os.path.join(__location__, file_name)
+	
+	existing_id = get_existing_drive_id(file_path)
+	await read_vc_users(file_path, date_string, time_string)
+	upload_file_to_drive(file_path, file_name, existing_id)
 	await client.close()
 
 
 if __name__ == "__main__":
-	with open(os.path.join(__location__, 'token.json')) as f:
-		data = json.load(f)
-		client.run(data["token"])
+	args = sys.argv[1:]
+	if len(args) > 0 and (args[0] == "--login" or args[0] == "-l"):
+		print(login())
+		exit(0)
+	else:
+		try:
+			global drive
+			creds = login()
+			drive = build('drive', 'v3', credentials=creds)
+
+			token = os.path.join(__location__, "token.json")
+			with open(token) as f:
+				data = json.load(f)
+				client.run(data["token"])
+		except HttpError as error:
+			print(f'An error has occured: {error}')

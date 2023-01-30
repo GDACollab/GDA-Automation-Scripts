@@ -1,8 +1,7 @@
-credentials.json
-token.json
+*credentials.json
+*token.json
 __pycache__
 monday.json
 */node_modules/*
 *.csv
 *.ics
-Bot/package-lock.json
