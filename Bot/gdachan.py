@@ -1,5 +1,5 @@
-import json, discord, datetime, os, sys
-from datetime import datetime
+import json, discord, os, sys
+from datetime import datetime, timedelta
 from drive_login import login
 
 from googleapiclient.discovery import build
@@ -54,7 +54,7 @@ def upload_file_to_drive(path, name, existing_id):
 
 	if existing_id != None:
 		try:
-			drive.files().get(fileId=existing_id, fields='id').execute()
+			drive.files().get(fileId=existing_id, fields='id', supportsAllDrives=True).execute()
 		except HttpError as e:
 			print(f"{existing_id} does not likely exist on the drive. Error: {e}")
 			existing_id = None
@@ -122,28 +122,31 @@ async def on_ready():
 	file_path= os.path.join(__location__, file_name)
 	
 	existing_id, dateline = read_attendance_csv(file_path)
-	pastdate = dateline.split(",")[2]
 
 	await read_vc_users(file_path, date_string, time_string)
+
+	
 	# Is this the first time we're writing to today?
 	# This ensures we upload the file to drive at most once per day.
-	if pastdate != date_string:
+	if existing_id == None or dateline.split(",")[2] != date_string:
 		# Are we even in the same month as the last recorded date?
-		pastdate_split = pastdate.split("/")
-		date_string_split = date_string.split("/")
-		is_same_month = pastdate_split[1] == date_string_split[1] and pastdate_split[0] == date_string_split[0]
-		if not is_same_month:
-			previous_month_full = datetime.strptime(pastdate_split[1], "%m").strftime("%B")
+		# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
+		# OR when we're in a new month.
+		if existing_id == None:
+			previous_month_full = (d - timedelta(days=1)).strftime("%Y_%B")
 			previous_file_name = f"{previous_month_full}_voice_attendance.csv"
 			previous_file_path = os.path.join(__location__, file_name)
-
-			if os.path.exists(previous_file_path):
+			if previous_file_name != file_name and os.path.exists(previous_file_path):
 				upload_file_to_drive(previous_file_path, previous_file_name)
 
 		# Regardless, upload today's drive file:
 		upload_file_to_drive(file_path, file_name, existing_id)
+	elif existing_id != None:
+		# We've removed the file ID from reading and writing before, so we need to re-write it:
+		csv_file = open(file_path, "a")
+		csv_file.write(f"{existing_id}|\n")
+		csv_file.close()
 	await client.close()
-
 
 if __name__ == "__main__":
 	args = sys.argv[1:]
