@@ -111,41 +111,44 @@ async def read_vc_users(file_path, date_string, time_string):
 @client.event
 async def on_ready():
 	print(f"Logged in as {client.user}\n")
-	await client.change_presence(status=discord.CustomActivity("owo"))
+	try:
+		await client.change_presence(status=discord.CustomActivity("owo"))
 
-	d = datetime.now()
-	date_string = d.strftime("%Y/%m/%d")
-	time_string = d.strftime("%H:%M:%S")
-	month_string = d.strftime("%Y_%B")
+		d = datetime.now()
+		date_string = d.strftime("%Y/%m/%d")
+		time_string = d.strftime("%H:%M:%S")
+		month_string = d.strftime("%Y_%B")
 
-	file_name = f"{month_string}_voice_attendance.csv"
-	file_path= os.path.join(__location__, file_name)
-	
-	existing_id, dateline = read_attendance_csv(file_path)
+		file_name = f"{month_string}_voice_attendance.csv"
+		file_path= os.path.join(__location__, file_name)
+		
+		existing_id, dateline = read_attendance_csv(file_path)
 
-	await read_vc_users(file_path, date_string, time_string)
+		await read_vc_users(file_path, date_string, time_string)
 
-	
-	# Is this the first time we're writing to today?
-	# This ensures we upload the file to drive at most once per day.
-	if existing_id == None or dateline.split(",")[2] != date_string:
-		# Are we even in the same month as the last recorded date?
-		# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
-		# OR when we're in a new month.
-		if existing_id == None:
-			previous_month_full = (d - timedelta(days=1)).strftime("%Y_%B")
-			previous_file_name = f"{previous_month_full}_voice_attendance.csv"
-			previous_file_path = os.path.join(__location__, file_name)
-			if previous_file_name != file_name and os.path.exists(previous_file_path):
-				upload_file_to_drive(previous_file_path, previous_file_name)
+		
+		# Is this the first time we're writing to today?
+		# This ensures we upload the file to drive at most once per day.
+		if existing_id == None or dateline.split(",")[2] != date_string:
+			# Are we even in the same month as the last recorded date?
+			# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
+			# OR when we're in a new month.
+			if existing_id == None:
+				previous_month_full = (d - timedelta(days=1)).strftime("%Y_%B")
+				previous_file_name = f"{previous_month_full}_voice_attendance.csv"
+				previous_file_path = os.path.join(__location__, file_name)
+				if previous_file_name != file_name and os.path.exists(previous_file_path):
+					upload_file_to_drive(previous_file_path, previous_file_name)
 
-		# Regardless, upload today's drive file:
-		upload_file_to_drive(file_path, file_name, existing_id)
-	elif existing_id != None:
-		# We've removed the file ID from reading and writing before, so we need to re-write it:
-		csv_file = open(file_path, "a")
-		csv_file.write(f"{existing_id}|\n")
-		csv_file.close()
+			# Regardless, upload today's drive file:
+			upload_file_to_drive(file_path, file_name, existing_id)
+		elif existing_id != None:
+			# We've removed the file ID from reading and writing before, so we need to re-write it:
+			csv_file = open(file_path, "a")
+			csv_file.write(f"{existing_id}|\n")
+			csv_file.close()
+	except error:
+		print(f"Error: {error}")
 	await client.close()
 
 if __name__ == "__main__":
@@ -165,3 +168,4 @@ if __name__ == "__main__":
 				client.run(data["token"])
 		except HttpError as error:
 			print(f'An error has occured: {error}')
+			exit(error)
