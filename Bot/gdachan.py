@@ -99,7 +99,7 @@ async def read_vc_users(file_path, date_string, time_string):
 				if type(c) == discord.VoiceChannel:
 					# We have to fetch directly from the client for some reason to see members.
 					channel = await client.fetch_channel(c.id)
-					if channel.permissions_for(guild.me).view_channel and len(channel.members) > 0:
+					if channel.permissions_for(channel.guild.me).view_channel and len(channel.members) > 0:
 						entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
 						f.write(entry)
 						print(entry)
