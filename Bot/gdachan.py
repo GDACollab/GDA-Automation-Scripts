@@ -149,7 +149,7 @@ async def on_ready():
 			csv_file = open(file_path, "a")
 			csv_file.write(f"{existing_id}|\n")
 			csv_file.close()
-	except error:
+	except Exception as error:
 		print(f"Error: {error}")
 	await client.close()
 
