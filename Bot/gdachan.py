@@ -96,10 +96,10 @@ async def read_vc_users(file_path, date_string, time_string):
 		if not guild.unavailable:
 			channels = await guild.fetch_channels()
 			for c in channels:
-				if type(c) == discord.VoiceChannel and c.permissions_for(client.user).view_channel:
+				if type(c) == discord.VoiceChannel:
 					# We have to fetch directly from the client for some reason to see members.
 					channel = await client.fetch_channel(c.id)
-					if len(channel.members) > 0:
+					if c.permissions_for(client.user).view_channel and len(channel.members) > 0:
 						entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
 						f.write(entry)
 						print(entry)
@@ -151,7 +151,8 @@ async def on_ready():
 			csv_file.write(f"{existing_id}|\n")
 			csv_file.close()
 	except Exception as error:
-		print(f"Error: {error}")
+		import traceback
+		traceback.print_exc()
 	await client.close()
 
 if __name__ == "__main__":
