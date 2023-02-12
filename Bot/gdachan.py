@@ -97,7 +97,7 @@ async def read_vc_users(file_path, date_string, time_string):
 			channels = await guild.fetch_channels()
 			for c in channels:
 				# We have to fetch directly from the client for some reason to see members.
-				channel = client.fetch_channel(c.id)
+				channel = await client.fetch_channel(c.id)
 				if type(channel) == discord.VoiceChannel and len(channel.members) > 0:
 					entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
 					f.write(entry)
