@@ -98,11 +98,15 @@ async def read_vc_users(file_path, date_string, time_string):
 			for c in channels:
 				if type(c) == discord.VoiceChannel:
 					# We have to fetch directly from the client for some reason to see members.
-					channel = await client.fetch_channel(c.id)
-					if channel.permissions_for(channel.guild.me).view_channel and len(channel.members) > 0:
-						entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
-						f.write(entry)
-						print(entry)
+					try:
+						channel = await client.fetch_channel(c.id)
+						if len(channel.members) > 0:
+							entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
+							f.write(entry)
+							print(entry)
+					except discord.Forbidden:
+						# I don't know how else to check to see if there isn't a permission error. I literally have to fetch the channel to see if there's an error in viewing it.
+						pass
 		else:
 			# Unavailable
 			entry = f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n"
