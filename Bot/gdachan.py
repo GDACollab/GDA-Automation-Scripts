@@ -96,12 +96,13 @@ async def read_vc_users(file_path, date_string, time_string):
 		if not guild.unavailable:
 			channels = await guild.fetch_channels()
 			for c in channels:
-				# We have to fetch directly from the client for some reason to see members.
-				channel = await client.fetch_channel(c.id)
-				if type(channel) == discord.VoiceChannel and len(channel.members) > 0:
-					entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
-					f.write(entry)
-					print(entry)
+				if type(c) == discord.VoiceChannel:
+					# We have to fetch directly from the client for some reason to see members.
+					channel = await client.fetch_channel(c.id)
+					if len(channel.members) > 0:
+						entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
+						f.write(entry)
+						print(entry)
 		else:
 			# Unavailable
 			entry = f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n"
