@@ -96,7 +96,7 @@ async def read_vc_users(file_path, date_string, time_string):
 		if not guild.unavailable:
 			channels = await guild.fetch_channels()
 			for c in channels:
-				if type(c) == discord.VoiceChannel and c.permissions_for(client).view_channel:
+				if type(c) == discord.VoiceChannel and c.permissions_for(client.user).view_channel:
 					# We have to fetch directly from the client for some reason to see members.
 					channel = await client.fetch_channel(c.id)
 					if len(channel.members) > 0:
