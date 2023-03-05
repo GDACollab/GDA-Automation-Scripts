@@ -85,9 +85,9 @@ async def read_vc_users(file_path, date_string, time_string):
 	new_file = not os.path.exists(file_path)
 	f = open(file_path, "a")
 
-	print("Server Name,Channel Name,Date,Time,# of Members")
+	print("Server Name,Channel ID,Channel Name,Date,Time,# of Members")
 	if new_file:
-		f.write("Server Name,Channel Name,Date,Time,# of Members\n")
+		f.write("Server Name,Channel ID,Channel Name,Date,Time,# of Members\n")
 
 	header = f"---,---,{date_string},{time_string},---\n"
 	print(header)
@@ -102,7 +102,7 @@ async def read_vc_users(file_path, date_string, time_string):
 					try:
 						channel = await client.fetch_channel(c.id)
 						if len(channel.members) > 0:
-							entry = f"{guild.name},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
+							entry = f"{guild.name},{channel.id},{channel.name},{date_string},{time_string},{len(channel.members)}\n"
 							f.write(entry)
 							print(entry)
 					except discord.Forbidden:
@@ -110,7 +110,7 @@ async def read_vc_users(file_path, date_string, time_string):
 						pass
 		else:
 			# Unavailable
-			entry = f"{guild.name},ALL OFFLINE,{date_string},{time_string},OFFLINE\n"
+			entry = f"{guild.name},OFFLINE,ALL OFFLINE,{date_string},{time_string},OFFLINE\n"
 			f.write(entry)
 			print(entry)
 	f.close()
