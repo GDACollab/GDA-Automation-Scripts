@@ -89,7 +89,7 @@ async def read_vc_users(file_path, date_string, time_string):
 	if new_file:
 		f.write("Server Name,Channel ID,Channel Name,Date,Time,# of Members\n")
 
-	header = f"---,---,{date_string},{time_string},---\n"
+	header = f"---,---,---,{date_string},{time_string},---\n"
 	print(header)
 	f.write(header)
 
