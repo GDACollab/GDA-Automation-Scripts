@@ -137,7 +137,7 @@ async def on_ready():
 		
 		# Is this the first time we're writing to today?
 		# This ensures we upload the file to drive at most once per day.
-		if existing_id == None or dateline.split(",")[2] != date_string:
+		if existing_id == None or (dateline != "" and dateline.split(",")[2] != date_string):
 			# Are we even in the same month as the last recorded date?
 			# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
 			# OR when we're in a new month.
