@@ -142,10 +142,10 @@ async def on_ready():
 			# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
 			# OR when we're in a new month.
 			if existing_id == None:
-				print("Uploading previous month.")
-				previous_month_full = (d - timedelta(days=1)).strftime("%Y_%B")
+				previous_month_full = (d - timedelta(weeks=1)).strftime("%Y_%B")
 				previous_file_name = f"{previous_month_full}_voice_attendance.csv"
 				previous_file_path = os.path.join(__location__, file_name)
+				print(f"Uploading previous month {previous_month_full}, with path {previous_file_path}.")
 				if previous_file_name != file_name and os.path.exists(previous_file_path):
 					upload_file_to_drive(previous_file_path, previous_file_name)
 
