@@ -15,36 +15,19 @@ client = discord.Client(intents=intents)
 
 def read_attendance_csv(path):
 	if not os.path.exists(path):
-		return None, ""
+		return None, None
 
-	csv_file = open(path, "rb+")
+	# Just read the metadata, don't try to do anything fancy:
+	metadata = os.stat(path)
+	last_date = metadata.st_mtime
 
-	# Hack to append file ID to update to the end of the current CSV:
-	line_count = 0
-	try:
-		csv_file.seek(0, os.SEEK_END)
-		while line_count < 2:
-			csv_file.seek(-2, os.SEEK_CUR)
-			if csv_file.read(1) == b'\n':
-				line_count += 1
-	except OSError as e:
-		print(f"Error seeking {path}: {e}")
-		csv_file.seek(0)
-	# Get the last line with a date (we just assume it's the second to last line. We will update if lastline doesn't have a file ID)
-	last_dateline = csv_file.readline().decode()
-	lastline = csv_file.readline().decode()
+	id_file = path.replace(".csv", ".id")
 
 	existing_id = None
-	if "|" in lastline:
-		existing_id = lastline.split("|")[0]
-		existing_size = os.path.getsize(path)
-		# We don't want the file ID to be included in any uploads to drive:
-		csv_file.truncate(existing_size - len(lastline.encode('utf-8')))
-	else:
-		last_dateline = lastline
-	csv_file.seek(0, os.SEEK_CUR)
-	csv_file.close()
-	return existing_id, last_dateline
+	if os.path.exists(id_file):
+		with open(id_file, 'r') as file:
+			existing_id = file.read()
+	return existing_id, datetime.fromtimestamp(last_date)
 
 def upload_file_to_drive(path, name, existing_id=None):
 	if not os.path.exists(path):
@@ -63,7 +46,7 @@ def upload_file_to_drive(path, name, existing_id=None):
 	metadata = {'name': name, 'mimeType': 'text/csv'}
 	print(f"Loading {path}")
 
-	csv_file = open(path, "a")
+	id_file = open(path.replace(".csv", ".id"), "a")
 	try:
 		if existing_id == None:
 			metadata["parents"] = ["1DjNOtRnlhhiEMFk-Y3UO4WuWIndZuixB"]
@@ -74,11 +57,11 @@ def upload_file_to_drive(path, name, existing_id=None):
 			file = drive.files().update(fileId=existing_id, body=metadata, media_body=csv, fields='id', supportsAllDrives=True).execute()
 			existing_id = file.get('id')
 			print(f"Updated {name} with file ID: {existing_id}")
-		csv_file.write(f"{existing_id}|\n")
+		id_file.write(f"{existing_id}")
 	except HttpError as error:
 		print(f"Error uploading {name}: {error}")
 	
-	csv_file.close()
+	id_file.close()
 
 async def read_vc_users(file_path, date_string, time_string):
 	
@@ -130,32 +113,28 @@ async def on_ready():
 		file_name = f"{month_string}_voice_attendance.csv"
 		file_path= os.path.join(__location__, file_name)
 		
-		existing_id, dateline = read_attendance_csv(file_path)
+		existing_id, date_modified = read_attendance_csv(file_path)
 
 		await read_vc_users(file_path, date_string, time_string)
 
 		
 		# Is this the first time we're writing to today?
 		# This ensures we upload the file to drive at most once per day.
-		if existing_id == None or (dateline != "" and dateline.split(",")[2] != date_string):
+		print("Existing ID: ", existing_id, "Date Modified: ", date_modified)
+		if existing_id is None or (date_modified is not None and date_modified.date() != d.date()):
 			# Are we even in the same month as the last recorded date?
 			# Existing_id is only None when either: the file hasn't been uploaded to the drive yet (which should happen every time it's created).
 			# OR when we're in a new month.
 			if existing_id == None:
 				previous_month_full = (d - timedelta(weeks=1)).strftime("%Y_%B")
 				previous_file_name = f"{previous_month_full}_voice_attendance.csv"
-				previous_file_path = os.path.join(__location__, file_name)
+				previous_file_path = os.path.join(__location__, file_name.replace(".csv", ".id"))
 				print(f"Uploading previous month {previous_month_full}, with path {previous_file_path}.")
 				if previous_file_name != file_name and os.path.exists(previous_file_path):
 					upload_file_to_drive(previous_file_path, previous_file_name)
 
 			# Regardless, upload today's drive file:
 			upload_file_to_drive(file_path, file_name, existing_id)
-		elif existing_id != None:
-			# We've removed the file ID from reading and writing before, so we need to re-write it:
-			csv_file = open(file_path, "a")
-			csv_file.write(f"{existing_id}|\n")
-			csv_file.close()
 	except Exception as error:
 		import traceback
 		traceback.print_exc()
