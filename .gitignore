@@ -5,3 +5,4 @@ monday.json
 */node_modules/*
 *.csv
 *.ics
+*.id
